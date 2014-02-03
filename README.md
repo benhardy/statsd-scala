@@ -19,6 +19,13 @@ Create a new Statsd object with that config. Then reuse that to record stats
 
     statsd.namespace("mammals", "primates")("chimps").increment
 
+    // namespace is curried for reuse
+
+    val fishStats: String=>StatOperations = statsd.namespace("vertebrates", "fishes")
+    fishStats("mullet").increment
+    fishStats("bream").count(5)
+
+
 # Error handling
 
 If for some reason we can't send the stat to the server, an error will be

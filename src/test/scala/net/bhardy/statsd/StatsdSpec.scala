@@ -111,6 +111,21 @@ class StatsdSpec extends FunSpec with Matchers with MockitoSugar {
         verify(errors, never()).apply(anyString())
       }
     }
+    describe("curried namespace reuse") {
+      it("sends a message indicating a bump of 1 for the item count to the statsd server") {
+        val messages = mock[String => Unit]
+        val errors = mock[String => Unit]
+        val statsd = Statsd(Config(messages, errors))
+
+        val thingsStats: String=>StatOperations = statsd.namespace("interesting", "things")
+        thingsStats("item").increment
+        thingsStats("other").count(5)
+
+        verify(messages).apply("interesting.things.item:1|c")
+        verify(messages).apply("interesting.things.other:5|c")
+        verify(errors, never()).apply(anyString())
+      }
+    }
   }
 
   describe("error handling") {
